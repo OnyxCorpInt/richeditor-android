@@ -301,6 +301,31 @@ RE.removeFormat = function() {
     document.execCommand('removeFormat', false, null);
 }
 
+RE.cut = function(cut) {
+    return function(e) {
+        // no handler
+        if (typeof(Clipboard) === "undefined") {
+           return;
+        }
+        e.preventDefault();
+
+        // no selection
+        var sel = document.getSelection();
+        if (!sel.rangeCount) {
+           return;
+        }
+
+        var container = document.createElement("div");
+        for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+        }
+        Clipboard.setHtmlClipData(container.innerHTML.toString());
+        if (cut) {
+           sel.deleteFromDocument();
+        }
+    }
+}
+
 // Event Listeners
 RE.editor.addEventListener("input", RE.callback);
 RE.editor.addEventListener("keyup", function(e) {
@@ -310,3 +335,11 @@ RE.editor.addEventListener("keyup", function(e) {
     }
 });
 RE.editor.addEventListener("click", RE.enabledEditingItems);
+RE.editor.addEventListener("cut", RE.cut(true));
+RE.editor.addEventListener("copy", RE.cut(false));
+RE.editor.addEventListener("paste", function(e) {
+    if (typeof(Clipboard) !== "undefined") {
+        e.preventDefault();
+        RE.insertHTML(Clipboard.getHtmlClipData());
+    }
+});

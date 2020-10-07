@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -100,6 +101,7 @@ public class RichEditor extends WebView {
     getSettings().setJavaScriptEnabled(true);
     setWebChromeClient(new WebChromeClient());
     setWebViewClient(createWebviewClient());
+
     loadUrl(SETUP_HTML);
 
     applyAttributes(context, attrs);
@@ -107,6 +109,10 @@ public class RichEditor extends WebView {
 
   protected EditorWebViewClient createWebviewClient() {
     return new EditorWebViewClient();
+  }
+
+  public void setClipboard(Clipboard clipboard) {
+    addJavascriptInterface(clipboard, "Clipboard");
   }
 
   public void setOnTextChangeListener(OnTextChangeListener listener) {
